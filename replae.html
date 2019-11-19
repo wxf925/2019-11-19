@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+    /*
+   exec 的小秘密
+        如果是一个变量的正则,每次不断的去用正则调用exec,返回的结果总是下次匹配结果,如果下次匹配不到,返回null
+
+        lastIndex 是可以拿到当前匹配项之后第一个字符的位置
+
+        re:匹配的正则
+        str:整个字符串
+        cb:回调函数
+
+        返回的是一堆新的字符串
+
+        解决的是replace,第一个参数是正则,第二个参数是函数
+   */
+
+   let str = 'abacababcbacabc';
+
+   function replace(str,re,cb){
+       let str2 = '';
+       let ary = re.exec(str)//true;  
+       //让第一次能够进去while中(找到第一次的位置)
+
+       let rep = '';
+       let reAry = [];
+       let noRep = [];
+       let num = 0;
+       while(ary){
+           let {index} = ary; //结构出匹配到的索引index
+           reAry.push(cb(...ary,index,str));
+           noRep.push(str.substring(num,re.lastIndex-ary[0].length))
+           num = re.lastIndex;
+           ary = re.exec(str);
+       }
+       //没修改的 + 修改的 = 最新的字符串
+       noRep.forEach((old,i)=>{
+           str2 += (old + reAry[i])
+       });
+
+       console.log(str2);
+
+       return str2;
+       
+   }
+
+   let i = 0;
+   let s = replace(str,/abc/g,function($0,$1,$2,$3,$4,$5){
+       return 'abc'+ i++;
+   });
+   console.log(s);
+   
+    </script>
+
+</body>
+
+</html>
